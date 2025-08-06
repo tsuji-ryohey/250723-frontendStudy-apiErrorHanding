@@ -15,14 +15,24 @@ export default async function Page() {
    * 5. エンドポイントのidやドメインを変更して意図的にエラーを発生させてみよう
    * 8. 猫画像取得専用API呼び出し関数 lib/api/logics/getApiCatImage.ts を作成してみよう
    */
+  const catApiResponse = await getApi(API_ENDPOINT.CAT_IMAGE, {
+    slugs: {[CAT_API_SLUGS.ID]: 'MTUzNjQwNw' }
+  });
+  console.log("catApiResponse", catApiResponse)
 
   /**
    * 2. status から成功したかどうかを判別し変数に格納してみよう
    */
+  const isCatOK = catApiResponse.status === API_STATUS.OK;
+  const image = isCatOK ? catApiResponse.data : []
+  console.log('isCatOK', isCatOK)
+
 
   /**
    * 6. APIエラーのときだけエラーメッセージを変数に格納
    */
+  const isCatApiError = catApiResponse.status === API_STATUS.API_ERROR
+  const catApiResponseErrorMessage = (isCatApiError && catApiResponse.data?.message)
 
   /**
    * 9. Pokémon API を使ってポケモンの画像をエラーハンドリングしつつ表示するセクションを追加してみよう
@@ -35,10 +45,11 @@ export default async function Page() {
       <section className="p-6">
         <h2 className="text-2xl font-bold">Cat</h2>
         {/* 3. 成功しているときだけ猫の画像を表示してみよう */}
-
+        { isCatOK && <div><img src={catApiResponse.data.url} width={catApiResponse.data.width} height={catApiResponse.data.height} alt="" /></div> }
         {/* 4. 失敗しているときだけ代替画像を表示してみよう */}
-
+        { !isCatOK && <Image src="/assets/noimage.png" width="256" height="256" alt="No image" /> }
         {/* 7. エラーメッセージを表示 */}
+        { isCatApiError&&catApiResponseErrorMessage && <p>{catApiResponseErrorMessage}</p> }
       </section>
 
       {/* 9. Pokémon API を使ってポケモンの画像をエラーハンドリングしつつ表示するセクションを追加してみよう */}
